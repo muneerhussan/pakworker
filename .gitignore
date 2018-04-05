@@ -1,0 +1,5 @@
+/vender/
+/public/img/
+/storage/*
+/vendor/
+.env
