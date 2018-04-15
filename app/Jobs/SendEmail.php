@@ -12,18 +12,14 @@ class SendEmail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-protected  $use;
-protected $token;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($use,$token)
+    public function __construct()
     {
-        
-        $this->use=$use;
-        $this->token=$token;
+        //
     }
 
     /**
@@ -31,12 +27,8 @@ protected $token;
      *
      * @return void
      */
-    public function handle($use,$token)
+    public function handle()
     {
-        Mail::raw($this->token,function($message) {
-                $message->to($use->email);
-                $message->subject(" hello $use->name,Get your token below");
-                });
+        //
     }
-    
 }
