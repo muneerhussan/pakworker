@@ -22,3 +22,10 @@ Route::post('register', 'Auth\RegisterController@register');
 Route::group(['middleware' => 'auth:api'], function(){
 	Route::post('get-details', 'Auth\RegisterController@getDetails');
 });
+
+Route::post('password/email', 'Auth\ForgotPasswordController@getResetToken');
+Route::post('password/reset', 'Auth\ResetPasswordController@reset');
+Route::post('email','Auth\ForgotPasswordController@email');
+
+
+
