@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\User;
 use Illuminate\Support\Facades\Auth;
 use Validator;
+use App\Events\UserRegistered;
 
 class RegisterController extends Controller
 {
@@ -16,35 +17,42 @@ class RegisterController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function register(Request $request)
+    public function validator(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        return Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email',
             'password' => 'required',
             'c_password' => 'required|same:password',
+            'phone'    =>'required',
         ]);
-
-        if ($validator->fails()) {
-            return response()->json(['error'=>$validator->errors()], 401);            
-        }
-
-        $input = $request->all();
-        $input['password'] = bcrypt($input['password']);
-        $user = User::create($input);
-        $success['token'] =  $user->createToken('MyApp')->accessToken;
-        $success['name'] =  $user->name;
-        return response()->json(['success'=>$success], $this->successStatus);
     }
-
+    public function register(Request $request)
+    {
+       try
+        {  
+          
+          $validator=$this->validator($request);
+           
+          if ($validator->fails()) 
+            {
+                return $this->jsonResponse(false,$validator->errors()->first());  
+            }
+                $input = $request->all();
+                $input['password'] = bcrypt($input['password']);
+                $input['api_key']  = str_random(60);
+                $user = User::create($input);
+                event(new UserRegistered($user));
+                return $this->jsonResponse(true,'User Created Successfully');
+       }
+        catch (\Exception $ex)
+       {
+            return $this->jsonResponse(false, $this->exceptionToString($ex));
+       }
+    }
     /**
      * details api
      *
      * @return \Illuminate\Http\Response
-     */
-    public function getDetails()
-    {
-        $user = Auth::user();
-        return response()->json(['success' => $user], $this->successStatus);
-    }
+     */ 
 }

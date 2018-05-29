@@ -16,9 +16,13 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::post('login', 'Auth\LoginController@login');
-Route::post('register', 'Auth\RegisterController@register');
+Route::post('/login', ['as'=>'/login','uses'=>'Auth\LoginController@login']);
+Route::post('/register',['as'=>'/register','uses'=>'Auth\RegisterController@register']);
 
-Route::group(['middleware' => 'auth:api'], function(){
-	Route::post('get-details', 'Auth\RegisterController@getDetails');
+Route::prefix('/password')->group(function (){
+Route::post('/email',['as'=>'/reset_link','uses'=>'Auth\ForgotPasswordController@getResetToken']);
+Route::post('/reset',['as'=>'/reset_password','uses'=>'Auth\ResetPasswordController@reset']);
+});
+Route::prefix('/profile')->group(function () {
+    Route::put('/setting',['as'=>'setting','uses'=>'profileController@setting']);
 });

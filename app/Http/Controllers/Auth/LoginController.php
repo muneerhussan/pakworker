@@ -15,16 +15,36 @@ class LoginController extends Controller
     | redirecting them to your home screen. The controller uses a trait
     | to conveniently provide its functionality to your applications.
     |
-    */
-     public $successStatus = 200;
-     public function login(){
-        if(Auth::attempt(['email' => request('email'), 'password' => request('password')])){
-            $user = Auth::user();
-            $success['token'] =  $user->createToken('MyApp')->accessToken;
-            return response()->json(['success' => $success], $this->successStatus);
-        }
-        else{
-            return response()->json(['error'=>'Unauthorised'], 401);
-        }
+    */public function validator(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+                'email' => 'required|email',
+                'password'=>'required'
+            ]);
+                if($validator->fails())
+                {
+                    return $this->jsonResponse(false,$validator->errors());
+                }
     }
+     public function login()
+     {
+         
+       try
+         {
+            if(Auth::attempt(['email' => request('email'), 'password' => request('password')]))
+                {
+                    $data['api_key'] =  Auth::user()->api_key;
+                    return $this->jsonResponse(true,'Login successfully',$data);
+                }
+                else
+                {
+                    return $this->jsonResponse(false,'Unathorized User');
+                }
+         }
+                 
+        catch(\Exception $ex)
+        {
+           return $this->jsonResponse(false,'Unathorized User', $this->exceptionToString($ex));
+        }
+     }
 }
